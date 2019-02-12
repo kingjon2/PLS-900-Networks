@@ -234,11 +234,17 @@ between.six=sort(between,decreasing=TRUE)[1:6]
 table.between.six=as.table(between.six)
 write.table(table.between.six)
 
-cor(cDegree,closey)
-cor(cDegree,eigen_vector)
-cor(cDegree,between)
 
-cor(closey,eigen_vector)
-cor(closey,between)
+corr=as.data.frame(cbind(cDegree,closey,eigen_vector,between))
 
-cor(eigen_vector,between)
+cor(corr)
+
+
+
+#par(mfrow=c(3,2), mar=c(0,0,0,0))
+plot(closey, between, main="Closeness vs. Betweenness")
+plot(closey, eigen_vector, main = "Closeness vs. EigenVector")
+plot(closey,cDegree, main="Closeness vs. Degree")
+plot(cDegree, between, main="Degree vs. Betweenness")
+plot(cDegree,eigen_vector, main= "Degree vs. EigenVector")
+plot(eigen_vector,between, main="Eigenvector vs. Betweenness")
