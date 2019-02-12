@@ -72,25 +72,25 @@ sort(eigen_centrality(graph)$vector, decreasing=TRUE)[1:6]
 #####Plot
 
 
-between_delete=between<=100
+
 
 
 #setting up the labels using various centrality measures
 V(graph)$dlabel=ifelse(cDegree>=15, V(graph)$name, NA)
 V(graph)$elabel=ifelse(eigen_centrality(graph)$vector>=.04, V(graph)$name, NA)
-V(graph)$clabel=ifelse(closeness(graph)>=5.4e-06, V(graph)$name, NA)
+V(graph)$clabel=ifelse(closeness(graph)>=5.718566e-06 , V(graph)$name, NA)
 V(graph)$blabel=ifelse(betweenness(graph)>=248, V(graph)$name, NA)
 
 #vertice size by the centrality measures
 V(graph)$dsize=cDegree
 V(graph)$esize=(eigen_centrality(graph)$vector)*15
-V(graph)$csize=closeness(graph)*5
+V(graph)$csize=closeness(graph)*1000000
 V(graph)$bsize=betweenness(graph)/50
 
 #change the color of the vertices based on centrality measures
 V(graph)$dcolor=ifelse(cDegree>=15, "light blue", "grey")
 V(graph)$ecolor=ifelse(eigen_centrality(graph)$vector>=.04, "light blue", "grey")
-V(graph)$ccolor=ifelse(closeness(graph)$vector>=5.4e-06, "light blue", "grey")
+V(graph)$ccolor=ifelse(closeness(graph)>=5.718566e-06, "light blue", "grey")
 V(graph)$bcolor=ifelse(betweenness(graph)>=248, "light blue", "grey")
 
 #weight edges by number of interactions
@@ -157,20 +157,39 @@ plot(graph_eig,
 )
 
 #closeness
-plot(graph,
-     layout=layout_with_kk(graph),
+
+graph_close=graph_from_adjacency_matrix(dyadmat,
+                                        mode="directed",
+                                        weighted=TRUE,
+                                        diag=FALSE)
+
+
+g_del_close=V(graph)[closeness(graph_close)<5.720758e-06 ]
+
+
+
+graph_close=delete.vertices(graph_close,g_del_close)
+
+plot(graph_close,
+     layout=layout_with_lgl(graph),
      vertex.label.family='sans',
      vertex.label=V(graph)$clabel,
      vertex.size=V(graph)$csize,
      vertex.color=V(graph)$ccolor,
      vertex.label.color="black",
-     vertex.label.cex=.7,
+     vertex.label.cex=.8,
+     vertex.label.font=2,
      edge.curved=.25,
      edge.color="grey20",
      edge.width=weight,
+     edge.arrow.size=0.5,
+     edge.arrow.width=0.5,
      asp=1
 )
 
+
+
+#betweenness
 
 
 g_del_between=V(graph)[betweenness(graph)<100]
@@ -181,8 +200,6 @@ graph_between=graph_from_adjacency_matrix(dyadmat,
 
 
 graph_between=delete.vertices(graph,g_del_between)
-
-#betweenness
 plot(graph_between,
      layout=layout_with_lgl(graph),
      vertex.label.family='sans',
