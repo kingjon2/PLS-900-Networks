@@ -99,7 +99,8 @@ weight=log(E(graph)$weight)
 #layout?
 
 
-#par(mfrow=c(2,2), mar=c(0,0,0,0))
+par(mfrow=c(2,2), mar=c(0,0,1,0))
+
 #degree
 g_del_degree=V(graph)[igraph::degree(graph)<1]
 graph_degree=graph_from_adjacency_matrix(dyadmat,
@@ -111,7 +112,7 @@ graph_degree=graph_from_adjacency_matrix(dyadmat,
 graph_degree=delete.vertices(graph,g_del_degree)
 
 plot(delete_vertices(graph,cDegree<=1),
-     layout=layout_with_kk(graph),
+     layout=layout_with_lgl(graph),
      vertex.label.family='sans',
      vertex.label=V(graph)$dlabel,
      vertex.size=V(graph)$dsize,
@@ -124,8 +125,11 @@ plot(delete_vertices(graph,cDegree<=1),
      edge.width=weight,
      edge.arrow.size=0.5,
      edge.arrow.width=0.75,
-     asp=1
+     asp=1,
+     main="Arranged by Degree"
 )
+
+
 
 #eigen
 
@@ -153,8 +157,12 @@ plot(graph_eig,
      edge.width=weight,
      edge.arrow.size=0.5,
      edge.arrow.width=0.5,
-     asp=1
+     asp=1,
+     main="Arranged by Eigenvector Centrality"
 )
+
+
+
 
 #closeness
 
@@ -171,21 +179,24 @@ g_del_close=V(graph)[closeness(graph_close)<5.720758e-06 ]
 graph_close=delete.vertices(graph_close,g_del_close)
 
 plot(graph_close,
-     layout=layout_with_lgl(graph),
+     layout=layout.fruchterman.reingold.grid(graph),
      vertex.label.family='sans',
      vertex.label=V(graph)$clabel,
      vertex.size=V(graph)$csize,
      vertex.color=V(graph)$ccolor,
      vertex.label.color="black",
-     vertex.label.cex=.8,
+     vertex.label.cex=.9,
      vertex.label.font=2,
      edge.curved=.25,
      edge.color="grey20",
      edge.width=weight,
-     edge.arrow.size=0.5,
-     edge.arrow.width=0.5,
-     asp=1
+     edge.arrow.size=0.3,
+     edge.arrow.width=0.3,
+     asp=1,
+     main="Arranged by Closeness"
 )
+
+
 
 
 
@@ -214,13 +225,19 @@ plot(graph_between,
      edge.width=weight,
      edge.arrow.size=0.5,
      edge.arrow.width=0.5,
-     asp=1
+     asp=1,
+     main="Arranged by Betweenness"
 )
 
+
+
+
+#centrality scores, top 6 of each
 degree.six=sort(cDegree,decreasing=TRUE)[1:6]
 table_degree_six=as.table(degree.six)
 table_degree_six
 write.table(table_degree_six)
+
 
 closeness.six=sort(closey,decreasing=TRUE)[1:6]
 table.closeness.six=as.table(closeness.six)
@@ -235,16 +252,17 @@ table.between.six=as.table(between.six)
 write.table(table.between.six)
 
 
+#correlation table of four measures
 corr=as.data.frame(cbind(cDegree,closey,eigen_vector,between))
 
 cor(corr)
 
 
-
-#par(mfrow=c(3,2), mar=c(0,0,0,0))
-plot(closey, between, main="Closeness vs. Betweenness")
-plot(closey, eigen_vector, main = "Closeness vs. EigenVector")
-plot(closey,cDegree, main="Closeness vs. Degree")
-plot(cDegree, between, main="Degree vs. Betweenness")
-plot(cDegree,eigen_vector, main= "Degree vs. EigenVector")
-plot(eigen_vector,between, main="Eigenvector vs. Betweenness")
+#scatter plots of all measures
+par(mfrow=c(3,2))
+plot(closey, between, xlab="Closeness", ylab = "Betweenness")
+plot(closey, eigen_vector, xlab = "Closeness", ylab = "Eigenvector Centrality")
+plot(closey,cDegree,  xlab = "Closeness",ylab = "Degree")
+plot(cDegree, between,  xlab = "Degree", ylab = "Betweenness")
+plot(cDegree,eigen_vector,  xlab = "Degree",ylab = "Eigenvector Centrality")
+plot(eigen_vector,between, xlab = "Eigenvector Centrality", ylab = "Betweenness")
