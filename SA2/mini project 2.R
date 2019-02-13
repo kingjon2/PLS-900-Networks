@@ -1,0 +1,269 @@
+#Elizabeth Brannon, Jonathan King, Shayla Olson
+#Short Assignment 2
+
+data <- read.csv("C:/Users/Jonathan/Desktop/Lexar/MSU PhD/Coursework (Pre-Comps)/Spring 2019/PLS 900- Networks/Short Assignments/SA2/Data_CSV.csv", stringsAsFactors = FALSE)
+#Citation: Högbladh, Stina, Therése Pettersson & Lotta Themnér, 2011. "External Support in Armed Conflict 1975-2009. Presenting new data" Paper presented at the 52nd Annual International Studies Association Convention, Montreal, Canada, 16-19 March, 2011.
+
+unique(data$bwd_name) #Checking number of unique dyads
+
+library(dplyr)
+library(igraph)
+library(stringr)
+library(countrycode)
+
+df <- data %>% group_by(bwd_name) %>% summarize(count=n()) #collapsing data by counts of reoccuring dyads
+dyaddata <- df[-1,] #remove missing data
+
+
+strings <- str_split_fixed(dyaddata$bwd_name, "-", 2) #splitting dyads by name
+
+dyaddata$actor1 <- trimws(strings[,1]) #making new variables from split dyads
+dyaddata$actor2 <- trimws(strings[,2])
+
+#Creating Matrix
+actors <- unique(c(dyaddata$actor1, dyaddata$actor2)) 
+n <- length(actors)
+
+dyadmat <- matrix(0, nrow=n, ncol=n, dimnames=list(actors, actors))
+diag(dyadmat) = NA
+
+for(i in 1:nrow(dyaddata)){
+  rowActor = as.character(dyaddata$actor1[i])
+  colActor = as.character(dyaddata$actor2[i])
+  dyadmat[rowActor, colActor] <-  dyaddata$count[i]
+  dyadmat[colActor, rowActor] <-  dyaddata$count[i]
+}
+
+
+
+#Graph Network
+#data is undirected because the dyadic data only accounts for total instances of support between two actors
+graph=graph_from_adjacency_matrix(dyadmat,
+                                  mode="directed",
+                                  weighted=TRUE,
+                                  diag=FALSE)
+
+
+#####measures of centrality
+
+#degree
+cDegree <- igraph::degree(graph, mode='in', loops=FALSE)
+sort(cDegree, decreasing=TRUE)[1:6]
+#The Government of Chad has the highest degree score
+
+#closeness
+closey=closeness(graph)
+sort(closeness(graph), decreasing=TRUE)[1:6]
+#By using closeness as a measure of centrality, The Government of India is the most central because it is the closest to other nodes.
+
+#betweenness
+between=betweenness(graph)
+sort(betweenness(graph), decreasing=TRUE)[1:6]
+#By using betweenness, the Government of India is the most central actor because it acts like a bridge between actors.
+
+#eigenvector centrality
+eigen_vector=eigen_centrality(graph)$vector
+sort(eigen_centrality(graph)$vector, decreasing=TRUE)[1:6]
+#According to the eigenvector centrality measure, the Government of Afghanistan is the most central because it is connected to other central actors.
+
+#For our data, closeness is not the best measures because it is a disconnected graph.
+#Eigenvector, degree, or betweenness??
+
+#####Plot
+
+
+
+
+
+#setting up the labels using various centrality measures
+V(graph)$dlabel=ifelse(cDegree>=15, V(graph)$name, NA)
+V(graph)$elabel=ifelse(eigen_centrality(graph)$vector>=.04, V(graph)$name, NA)
+V(graph)$clabel=ifelse(closeness(graph)>=5.718566e-06 , V(graph)$name, NA)
+V(graph)$blabel=ifelse(betweenness(graph)>=248, V(graph)$name, NA)
+
+#vertice size by the centrality measures
+V(graph)$dsize=cDegree
+V(graph)$esize=(eigen_centrality(graph)$vector)*15
+V(graph)$csize=closeness(graph)*1000000
+V(graph)$bsize=betweenness(graph)/50
+
+#change the color of the vertices based on centrality measures
+V(graph)$dcolor=ifelse(cDegree>=15, "light blue", "grey")
+V(graph)$ecolor=ifelse(eigen_centrality(graph)$vector>=.04, "light blue", "grey")
+V(graph)$ccolor=ifelse(closeness(graph)>=5.718566e-06, "light blue", "grey")
+V(graph)$bcolor=ifelse(betweenness(graph)>=248, "light blue", "grey")
+
+#weight edges by number of interactions
+weight=log(E(graph)$weight)
+
+#layout?
+
+
+par(mfrow=c(2,2), mar=c(0,0,1,0))
+
+#degree
+g_del_degree=V(graph)[igraph::degree(graph)<1]
+graph_degree=graph_from_adjacency_matrix(dyadmat,
+                                          mode="directed",
+                                          weighted=TRUE,
+                                          diag=FALSE)
+
+
+graph_degree=delete.vertices(graph,g_del_degree)
+
+plot(delete_vertices(graph,cDegree<=1),
+     layout=layout_with_lgl(graph),
+     vertex.label.family='sans',
+     vertex.label=V(graph)$dlabel,
+     vertex.size=V(graph)$dsize,
+     vertex.color=V(graph)$dcolor,
+     vertex.label.color="black",
+     vertex.label.cex=0.8,
+     vertex.label.font=2,
+     edge.curved=.25,
+     edge.color="grey20",
+     edge.width=weight,
+     edge.arrow.size=0.5,
+     edge.arrow.width=0.75,
+     asp=1,
+     main="Arranged by Degree"
+)
+
+
+
+#eigen
+
+g_del_eig=V(graph)[eigen_centrality(graph)$vector<0.04293326]
+graph_eig=graph_from_adjacency_matrix(dyadmat,
+                                          mode="directed",
+                                          weighted=TRUE,
+                                          diag=FALSE)
+
+
+graph_eig=delete.vertices(graph,g_del_eig)
+
+
+plot(graph_eig,
+     layout=layout_with_lgl(graph),
+     vertex.label.family='sans',
+     vertex.label=V(graph)$elabel,
+     vertex.size=V(graph)$esize,
+     vertex.color=V(graph)$ecolor,
+     vertex.label.color="black",
+     vertex.label.cex=.8,
+     vertex.label.font=2,
+     edge.curved=.25,
+     edge.color="grey20",
+     edge.width=weight,
+     edge.arrow.size=0.5,
+     edge.arrow.width=0.5,
+     asp=1,
+     main="Arranged by Eigenvector Centrality"
+)
+
+
+
+
+#closeness
+
+graph_close=graph_from_adjacency_matrix(dyadmat,
+                                        mode="directed",
+                                        weighted=TRUE,
+                                        diag=FALSE)
+
+
+g_del_close=V(graph)[closeness(graph_close)<5.720758e-06 ]
+
+
+
+graph_close=delete.vertices(graph_close,g_del_close)
+
+plot(graph_close,
+     layout=layout.fruchterman.reingold.grid(graph),
+     vertex.label.family='sans',
+     vertex.label=V(graph)$clabel,
+     vertex.size=V(graph)$csize,
+     vertex.color=V(graph)$ccolor,
+     vertex.label.color="black",
+     vertex.label.cex=.9,
+     vertex.label.font=2,
+     edge.curved=.25,
+     edge.color="grey20",
+     edge.width=weight,
+     edge.arrow.size=0.3,
+     edge.arrow.width=0.3,
+     asp=1,
+     main="Arranged by Closeness"
+)
+
+
+
+
+
+#betweenness
+
+
+g_del_between=V(graph)[betweenness(graph)<100]
+graph_between=graph_from_adjacency_matrix(dyadmat,
+                                  mode="directed",
+                                  weighted=TRUE,
+                                  diag=FALSE)
+
+
+graph_between=delete.vertices(graph,g_del_between)
+plot(graph_between,
+     layout=layout_with_lgl(graph),
+     vertex.label.family='sans',
+     vertex.label=V(graph)$blabel,
+     vertex.size=V(graph)$bsize,
+     vertex.color=V(graph)$bcolor,
+     vertex.label.color="black",
+     vertex.label.cex=.8,
+     vertex.label.font=2,
+     edge.curved=.25,
+     edge.color="grey20",
+     edge.width=weight,
+     edge.arrow.size=0.5,
+     edge.arrow.width=0.5,
+     asp=1,
+     main="Arranged by Betweenness"
+)
+
+
+
+
+#centrality scores, top 6 of each
+degree.six=sort(cDegree,decreasing=TRUE)[1:6]
+table_degree_six=as.table(degree.six)
+table_degree_six
+write.table(table_degree_six)
+
+
+closeness.six=sort(closey,decreasing=TRUE)[1:6]
+table.closeness.six=as.table(closeness.six)
+write.table(table.closeness.six)
+
+eigen.six=sort(eigen_vector,decreasing=TRUE)[1:6]
+table.eigen.six=as.table(eigen.six)
+write.table(table.eigen.six)
+
+
+between.six=sort(between,decreasing=TRUE)[1:6]
+table.between.six=as.table(between.six)
+write.table(table.between.six)
+
+
+#correlation table of four measures
+corr=as.data.frame(cbind(cDegree,closey,eigen_vector,between))
+
+cor(corr)
+
+
+#scatter plots of all measures
+par(mfrow=c(3,2))
+plot(closey, between, xlab="Closeness", ylab = "Betweenness")
+plot(closey, eigen_vector, xlab = "Closeness", ylab = "Eigenvector Centrality")
+plot(closey,cDegree,  xlab = "Closeness",ylab = "Degree")
+plot(cDegree, between,  xlab = "Degree", ylab = "Betweenness")
+plot(cDegree,eigen_vector,  xlab = "Degree",ylab = "Eigenvector Centrality")
+plot(eigen_vector,between, xlab = "Eigenvector Centrality", ylab = "Betweenness")

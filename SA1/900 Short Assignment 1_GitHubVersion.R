@@ -1,0 +1,99 @@
+#Elizabeth Brannon, Jonathan King, Shayla Olson
+#Short Assignment 1
+
+#read in data
+
+data<-read.csv("Data_SA1.csv", stringsAsFactors = FALSE)
+
+#unique actors only
+
+unique(data$actor1)
+unique(data$actor2)
+
+#create actors
+actors = unique(c(data$actor1, data$actor2))
+
+library(dplyr)
+
+#create ID- not necessary after next step
+dyadid <- group_by(data$actor1, data$actor2, add=FALSE)
+
+#change to character
+dyadid <- as.character(NA)
+dyaddata = data %>% group_by(actor1, actor2) %>% summarize(count=n())
+
+
+dyaddata$id <- apply(cbind(dyaddata$actor1, dyaddata$actor2), 1, 
+                     function(x) paste(sort(x), collapse=' '))
+
+#create blank matrix
+actors = unique(c(dyaddata$actor1, dyaddata$actor2))
+n=length(actors)
+dyadmat = matrix(0, nrow=length(actors), ncol=length(actors), dimnames=list(actors, actors))
+diag(dyadmat) = NA
+
+
+#create sociomatrix
+for(i in 1:nrow(dyaddata)){
+  rowActor = as.character(dyaddata$actor1[i])
+  colActor = as.character(dyaddata$actor2[i])
+  dyadmat[rowActor,colActor] = dyaddata$count[i]
+  dyadmat[colActor, rowActor] <-  dyaddata$count[i]
+}
+
+
+#calculate actor centrality 
+
+centrality= apply(dyadmat, 1, mean, na.rm=TRUE)
+
+max(apply(dyadmat,1,mean,na.rm=TRUE))
+
+which.max(apply(dyadmat,1,mean,na.rm=TRUE))
+
+
+#The most central actor is Boko Haram- Jamatu Ahli is-Sunnah lid-Dawatai wal-Jihad                   
+
+#graph network
+
+library(igraph)
+graph=graph_from_adjacency_matrix(dyadmat,
+                                  mode="undirected",
+                                  weighted=TRUE,
+                                  diag=FALSE)
+
+which.max(igraph::degree(graph))
+
+#Highest degree score is, again, Boko Haram- Jamatu Ahli is-Sunnah lid-Dawatai wal-Jihad     
+
+#make it so less than 4 weighted connections not labeled
+V(graph)$label=ifelse(igraph::degree(graph)>=4, V(graph)$name, NA)
+
+#change size of vertices
+tiesSum= apply(graph[],1,sum)
+tiesSum
+
+V(graph)$size=sqrt(tiesSum+1)
+
+#change colors for only 4 weighted connections in orange, all else grey
+V(graph)$color=ifelse(igraph::degree(graph)>=4,"orange","grey")
+
+weight=sqrt(E(graph)$weight)
+
+#plotting
+
+par(mar=c(0,0,0,0))
+plot(graph,
+     layout=layout_with_kk(graph),
+     vertex.lab=V(graph)$label,
+     vertex.size=V(graph)$size,
+     vertex.color=V(graph)$color,
+     vertex.label.color="black",
+     vertex.label.cex=.75,
+     edge.width=weight,
+     edge.curved=.25,
+     edge.color="grey20",
+     asp=.55
+)
+
+
+
