@@ -3,7 +3,7 @@ library(readr)
 Cow_Midterm <- read_csv("C:/Users/Jonathan/Desktop/Lexar/MSU PhD/Coursework (Pre-Comps)/Spring 2019/PLS 900- Networks/Midterm/netMidterm/Cow_Midterm.csv")
 
 
-#set up data
+####set up data######
 #1920s
 
 flow_1920s<-Cow_Midterm[Cow_Midterm$year %in% seq(1920,1929), c(1,2,3,4,5,6,7)]
@@ -54,7 +54,7 @@ flow_2000s<-aggregate(cbind(flow1=flow_2000s$flow1,flow2=flow_2000s$flow2),by=li
 
 
 
-#sociomatrices
+####sociomatrices#####
 #1920s
 
 flow_1920s=flow_1920s[order(flow_1920s$flow2,decreasing=TRUE),]
@@ -199,3 +199,465 @@ for(i in 1:nrow(flow_2000s)){
   dyadmat_2000s[rowActor,colActor]=flow_2000s$flow2[i]
   dyadmat_2000s[colActor,rowActor]=flow_2000s$flow1[i]
 }
+
+###Visualizations###
+library(igraph)
+library(countrycode)
+
+#1920s
+
+graph_1920s=graph_from_adjacency_matrix(dyadmat_1920s,
+                                        mode="directed",
+                                        weighted=TRUE,
+                                        diag=FALSE)
+
+
+#edge size by trade
+weight_1920s=E(graph_1920s)$weight/400
+
+
+#node size
+cDegree_1920s <- igraph::degree(graph_1920s, mode='in', loops=FALSE)
+V(graph_1920s)$size=cDegree_1920s
+
+#node color
+V(graph_1920s)$color=countrycode(attributes(V(graph_1920s))$names, origin="cown",destination = "continent")
+V(graph_1920s)$color=gsub("Americas","blue",V(graph_1920s)$color)
+V(graph_1920s)$color=gsub("Asia","green",V(graph_1920s)$color)
+V(graph_1920s)$color=gsub("Europe","orange",V(graph_1920s)$color)
+V(graph_1920s)$color=gsub("Oceania","purple",V(graph_1920s)$color)
+V(graph_1920s)$color=gsub("Africa","yellow",V(graph_1920s)$color)
+
+
+V(graph_1920s)$color[is.na(V(graph_1920s)$color)]="blue"
+
+#graph
+
+plot(graph_1920s, 
+     layout=layout.grid(graph_1920s),
+     vertex.size=V(graph_1920s)$size,
+     vertex.label="",
+     edge.curved=0.25,
+     edge.color="grey20",
+     edge.width=weight_1920s,
+     edge.arrow.size=0.4,
+     edge.arrow.width=0.6,
+     asp=0.8)
+title("Trade (Exports) in 1920s", cex.main=2)
+
+legend("bottomright",legend=c("Americas","Asia", "Europe", "Oceania","Africa"),
+       col = c("blue","green","orange","purple","yellow"),pt.cex=2, cex=1.2,pch = 19,bty = "n")
+
+
+
+
+#1930s
+
+graph_1930s=graph_from_adjacency_matrix(dyadmat_1930s,
+                                        mode="directed",
+                                        weighted=TRUE,
+                                        diag=FALSE)
+
+
+#edge size by trade
+weight_1930s=E(graph_1930s)$weight/4000
+
+
+#node size
+cDegree_1930s <- igraph::degree(graph_1930s, mode='in', loops=FALSE)
+V(graph_1930s)$size=cDegree_1930s
+
+#node color
+V(graph_1930s)$color=countrycode(attributes(V(graph_1930s))$names, origin="cown",destination = "continent")
+V(graph_1930s)$color=gsub("Americas","blue",V(graph_1930s)$color)
+V(graph_1930s)$color=gsub("Asia","green",V(graph_1930s)$color)
+V(graph_1930s)$color=gsub("Europe","orange",V(graph_1930s)$color)
+V(graph_1930s)$color=gsub("Oceania","purple",V(graph_1930s)$color)
+V(graph_1930s)$color=gsub("Africa","yellow",V(graph_1930s)$color)
+
+
+V(graph_1930s)$color[is.na(V(graph_1930s)$color)]="blue"
+
+#graph
+
+plot(graph_1930s, 
+     layout=layout.grid(graph_1930s),
+     vertex.size=V(graph_1930s)$size,
+     vertex.label="",
+     edge.curved=0.25,
+     edge.color="grey20",
+     edge.width=weight_1930s,
+     edge.arrow.size=0.4,
+     edge.arrow.width=0.6,
+     asp=0.8)
+
+title("Trade (Exports) in 1930s", cex.main=2)
+
+legend("bottomright",legend=c("Americas","Asia", "Europe", "Oceania","Africa"),
+       col = c("blue","green","orange","purple","yellow"),pt.cex=2, cex=1.2,pch = 19,bty = "n")
+
+
+
+#1940s
+
+graph_1940s=graph_from_adjacency_matrix(dyadmat_1940s,
+                                        mode="directed",
+                                        weighted=TRUE,
+                                        diag=FALSE)
+
+
+#edge size by trade
+weight_1940s=E(graph_1940s)$weight/400
+
+
+#node size
+cDegree_1940s <- igraph::degree(graph_1940s, mode='in', loops=FALSE)
+V(graph_1940s)$size=cDegree_1940s
+
+#node color
+V(graph_1940s)$color=countrycode(attributes(V(graph_1940s))$names, origin="cown",destination = "continent")
+V(graph_1940s)$color=gsub("Americas","blue",V(graph_1940s)$color)
+V(graph_1940s)$color=gsub("Asia","green",V(graph_1940s)$color)
+V(graph_1940s)$color=gsub("Europe","orange",V(graph_1940s)$color)
+V(graph_1940s)$color=gsub("Oceania","purple",V(graph_1940s)$color)
+V(graph_1940s)$color=gsub("Africa","yellow",V(graph_1940s)$color)
+
+
+V(graph_1940s)$color[is.na(V(graph_1940s)$color)]="blue"
+
+#graph
+
+plot(graph_1940s, 
+     layout=layout.grid(graph_1940s),
+     vertex.size=V(graph_1940s)$size,
+     vertex.label="",
+     edge.curved=0.25,
+     edge.color="grey20",
+     edge.width=weight_1940s,
+     edge.arrow.size=0.4,
+     edge.arrow.width=0.6,
+     asp=0.8)
+
+title("Trade (Exports) in 1940s", cex.main=2)
+
+legend("bottomright",legend=c("Americas","Asia", "Europe", "Oceania","Africa"),
+       col = c("blue","green","orange","purple","yellow"),pt.cex=2, cex=1.2,pch = 19,bty = "n")
+
+
+
+#1950s
+
+graph_1950s=graph_from_adjacency_matrix(dyadmat_1950s,
+                                        mode="directed",
+                                        weighted=TRUE,
+                                        diag=FALSE)
+
+
+#edge size by trade
+weight_1950s=E(graph_1950s)$weight/400
+
+
+#node size
+cDegree_1950s <- igraph::degree(graph_1950s, mode='in', loops=FALSE)
+V(graph_1950s)$size=cDegree_1950s
+
+#node color
+V(graph_1950s)$color=countrycode(attributes(V(graph_1950s))$names, origin="cown",destination = "continent")
+V(graph_1950s)$color=gsub("Americas","blue",V(graph_1950s)$color)
+V(graph_1950s)$color=gsub("Asia","green",V(graph_1950s)$color)
+V(graph_1950s)$color=gsub("Europe","orange",V(graph_1950s)$color)
+V(graph_1950s)$color=gsub("Oceania","purple",V(graph_1950s)$color)
+V(graph_1950s)$color=gsub("Africa","yellow",V(graph_1950s)$color)
+
+
+V(graph_1950s)$color[is.na(V(graph_1950s)$color)]="blue"
+
+#graph
+
+plot(graph_1950s, 
+     layout=layout.grid(graph_1950s),
+     vertex.size=V(graph_1950s)$size,
+     vertex.label="",
+     edge.curved=0.25,
+     edge.color="grey20",
+     edge.width=weight_1950s,
+     edge.arrow.size=0.4,
+     edge.arrow.width=0.6,
+     asp=0.8)
+
+title("Trade (Exports) in 1950s", cex.main=2)
+
+legend("bottomright",legend=c("Americas","Asia", "Europe", "Oceania","Africa"),
+       col = c("blue","green","orange","purple","yellow"),pt.cex=2, cex=1.2,pch = 19,bty = "n")
+
+
+#1960s
+
+
+graph_1960s=graph_from_adjacency_matrix(dyadmat_1960s,
+                                        mode="directed",
+                                        weighted=TRUE,
+                                        diag=FALSE)
+
+
+#edge size by trade
+weight_1960s=E(graph_1960s)$weight/400
+
+
+#node size
+cDegree_1960s <- igraph::degree(graph_1960s, mode='in', loops=FALSE)
+V(graph_1960s)$size=cDegree_1960s
+
+#node color
+V(graph_1960s)$color=countrycode(attributes(V(graph_1960s))$names, origin="cown",destination = "continent")
+V(graph_1960s)$color=gsub("Americas","blue",V(graph_1960s)$color)
+V(graph_1960s)$color=gsub("Asia","green",V(graph_1960s)$color)
+V(graph_1960s)$color=gsub("Europe","orange",V(graph_1960s)$color)
+V(graph_1960s)$color=gsub("Oceania","purple",V(graph_1960s)$color)
+V(graph_1960s)$color=gsub("Africa","yellow",V(graph_1960s)$color)
+
+
+V(graph_1960s)$color[is.na(V(graph_1960s)$color)]="blue"
+
+#graph
+
+plot(graph_1960s, 
+     layout=layout.grid(graph_1960s),
+     vertex.size=V(graph_1960s)$size,
+     vertex.label="",
+     edge.curved=0.25,
+     edge.color="grey20",
+     edge.width=weight_1960s,
+     edge.arrow.size=0.4,
+     edge.arrow.width=0.6,
+     asp=0.8)
+
+title("Trade (Exports) in 1960s", cex.main=2)
+
+legend("bottomright",legend=c("Americas","Asia", "Europe", "Oceania","Africa"),
+       col = c("blue","green","orange","purple","yellow"),pt.cex=2, cex=1.2,pch = 19,bty = "n")
+
+
+
+
+
+#1970s
+graph_1970s=graph_from_adjacency_matrix(dyadmat_1970s,
+                                        mode="directed",
+                                        weighted=TRUE,
+                                        diag=FALSE)
+
+
+#edge size by trade
+weight_1970s=E(graph_1970s)$weight/1000
+
+
+#node size
+cDegree_1970s <- igraph::degree(graph_1970s, mode='in', loops=FALSE)
+V(graph_1970s)$size=cDegree_1970s
+
+#node color
+V(graph_1970s)$color=countrycode(attributes(V(graph_1970s))$names, origin="cown",destination = "continent")
+V(graph_1970s)$color=gsub("Americas","blue",V(graph_1970s)$color)
+V(graph_1970s)$color=gsub("Asia","green",V(graph_1970s)$color)
+V(graph_1970s)$color=gsub("Europe","orange",V(graph_1970s)$color)
+V(graph_1970s)$color=gsub("Oceania","purple",V(graph_1970s)$color)
+V(graph_1970s)$color=gsub("Africa","yellow",V(graph_1970s)$color)
+
+
+V(graph_1970s)$color[is.na(V(graph_1970s)$color)]="blue"
+
+#graph
+
+plot(graph_1970s, 
+     layout=layout.grid(graph_1970s),
+     vertex.size=V(graph_1970s)$size,
+     vertex.label="",
+     edge.curved=0.25,
+     edge.color="grey20",
+     edge.width=weight_1970s,
+     edge.arrow.size=0.4,
+     edge.arrow.width=0.6,
+     asp=0.8)
+
+title("Trade (Exports) in 1970s", cex.main=2)
+
+legend("bottomright",legend=c("Americas","Asia", "Europe", "Oceania","Africa"),
+       col = c("blue","green","orange","purple","yellow"),pt.cex=2, cex=1.2,pch = 19,bty = "n")
+
+
+
+#1980s
+graph_1980s=graph_from_adjacency_matrix(dyadmat_1980s,
+                                        mode="directed",
+                                        weighted=TRUE,
+                                        diag=FALSE)
+
+
+#edge size by trade
+weight_1980s=E(graph_1980s)$weight/4000
+
+
+#node size
+cDegree_1980s <- igraph::degree(graph_1980s, mode='in', loops=FALSE)
+V(graph_1980s)$size=cDegree_1980s
+
+#node color
+V(graph_1980s)$color=countrycode(attributes(V(graph_1980s))$names, origin="cown",destination = "continent")
+V(graph_1980s)$color=gsub("Americas","blue",V(graph_1980s)$color)
+V(graph_1980s)$color=gsub("Asia","green",V(graph_1980s)$color)
+V(graph_1980s)$color=gsub("Europe","orange",V(graph_1980s)$color)
+V(graph_1980s)$color=gsub("Oceania","purple",V(graph_1980s)$color)
+V(graph_1980s)$color=gsub("Africa","yellow",V(graph_1980s)$color)
+
+
+V(graph_1980s)$color[is.na(V(graph_1980s)$color)]="blue"
+
+#graph
+
+plot(graph_1980s, 
+     layout=layout.grid(graph_1980s),
+     vertex.size=V(graph_1980s)$size,
+     vertex.label="",
+     edge.curved=0.25,
+     edge.color="grey20",
+     edge.width=weight_1980s,
+     edge.arrow.size=0.4,
+     edge.arrow.width=0.6,
+     asp=0.8)
+
+title("Trade (Exports) in 1980s", cex.main=2)
+
+legend("bottomright",legend=c("Americas","Asia", "Europe", "Oceania","Africa"),
+       col = c("blue","green","orange","purple","yellow"),pt.cex=2, cex=1.2,pch = 19,bty = "n")
+
+
+
+
+#1990s
+graph_1990s=graph_from_adjacency_matrix(dyadmat_1990s,
+                                        mode="directed",
+                                        weighted=TRUE,
+                                        diag=FALSE)
+
+
+#edge size by trade
+weight_1990s=E(graph_1990s)$weight/7500
+
+
+#node size
+cDegree_1990s <- igraph::degree(graph_1990s, mode='in', loops=FALSE)
+V(graph_1990s)$size=cDegree_1990s
+
+#node color
+V(graph_1990s)$color=countrycode(attributes(V(graph_1990s))$names, origin="cown",destination = "continent")
+V(graph_1990s)$color=gsub("Americas","blue",V(graph_1990s)$color)
+V(graph_1990s)$color=gsub("Asia","green",V(graph_1990s)$color)
+V(graph_1990s)$color=gsub("Europe","orange",V(graph_1990s)$color)
+V(graph_1990s)$color=gsub("Oceania","purple",V(graph_1990s)$color)
+V(graph_1990s)$color=gsub("Africa","yellow",V(graph_1990s)$color)
+
+
+V(graph_1990s)$color[is.na(V(graph_1990s)$color)]="blue"
+
+#graph
+
+plot(graph_1990s, 
+     layout=layout.grid(graph_1990s),
+     vertex.size=V(graph_1990s)$size,
+     vertex.label="",
+     edge.curved=0.25,
+     edge.color="grey20",
+     edge.width=weight_1990s,
+     edge.arrow.size=0.4,
+     edge.arrow.width=0.6,
+     asp=0.8)
+
+title("Trade (Exports) in 1990s", cex.main=2)
+
+legend("bottomright",legend=c("Americas","Asia", "Europe", "Oceania","Africa"),
+       col = c("blue","green","orange","purple","yellow"),pt.cex=2, cex=1.2,pch = 19,bty = "n")
+
+
+
+
+#2000
+graph_2000s=graph_from_adjacency_matrix(dyadmat_2000s,
+                                        mode="directed",
+                                        weighted=TRUE,
+                                        diag=FALSE)
+
+
+#edge size by trade
+weight_2000s=E(graph_2000s)$weight/20000
+
+
+#node size
+cDegree_2000s <- igraph::degree(graph_2000s, mode='in', loops=FALSE)
+V(graph_2000s)$size=cDegree_2000s
+
+#node color
+V(graph_2000s)$color=countrycode(attributes(V(graph_2000s))$names, origin="cown",destination = "continent")
+V(graph_2000s)$color=gsub("Americas","blue",V(graph_2000s)$color)
+V(graph_2000s)$color=gsub("Asia","green",V(graph_2000s)$color)
+V(graph_2000s)$color=gsub("Europe","orange",V(graph_2000s)$color)
+V(graph_2000s)$color=gsub("Oceania","purple",V(graph_2000s)$color)
+V(graph_2000s)$color=gsub("Africa","yellow",V(graph_2000s)$color)
+
+
+V(graph_2000s)$color[is.na(V(graph_2000s)$color)]="blue"
+
+#graph
+
+plot(graph_2000s, 
+     layout=layout.grid(graph_2000s),
+     vertex.size=V(graph_2000s)$size,
+     vertex.label="",
+     edge.curved=0.25,
+     edge.color="grey20",
+     edge.width=weight_2000s,
+     edge.arrow.size=0.4,
+     edge.arrow.width=0.6,
+     asp=0.8)
+
+title("Trade (Exports) in 2000s", cex.main=2)
+
+legend("bottomright",legend=c("Americas","Asia", "Europe", "Oceania","Africa"),
+       col = c("blue","green","orange","purple","yellow"),pt.cex=2, cex=1.2,pch = 19,bty = "n")
+
+
+##Graph Level Measures
+
+###Descriptive Statistics (1920s and 1990s)
+
+#degree
+
+degree_1920s_in=degree(graph_1920s,mode="in",loops=FALSE)
+
+degree_1920s_out=degree(graph_1920s,mode="out",loops=FALSE)
+
+degree_1920s_total=degree(graph_1920s,mode="all",loops=FALSE)
+
+degree_2000s_in=degree(graph_2000s,mode="in",loops=FALSE)
+
+degree_2000s_in=degree(graph_2000s,mode="out",loops=FALSE)
+
+degree_2000s_total=degree(graph_2000s,mode="all",loops=FALSE)
+
+#closeness
+
+close_1920s=closeness(graph_1920s)
+
+close_2000s=closeness(graph_2000s)
+
+#betweenness
+
+between_1920s=betweenness(graph_1920s)
+
+between_2000s=betweenness(graph_2000s)
+
+#eigenvector centrality
+
+eigen_1920s=eigen_centrality(graph_1920s)
+
+eigen_2000s=eigen_centrality(graph_2000s)$vector
